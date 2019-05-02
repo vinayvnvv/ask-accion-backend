@@ -1,0 +1,8 @@
+{
+  "type": "menu",
+   "items": [
+     {"icon": "help", "name": "Help Desk", "desc": "about hr related help queries"},
+      {"icon": "help", "name": "Apply Leave", "desc": "Leave related queries for applying different types of leaves."},
+      {"icon": "help", "name": "People Details", "desc": "It will give the different types details of the people in an accion"}
+   ]
+}

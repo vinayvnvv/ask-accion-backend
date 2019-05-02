@@ -1,0 +1,4 @@
+{
+    "welcome": "static-Default_Welcome_Intent",
+    "fallback": "static-Default_Fallback_Intent"
+}

@@ -1,0 +1,11 @@
+{
+	"type": "list",
+  	"list": [
+    	"apply leave on 2019/02/20",
+      	"working from home today",
+      	"working from home yesterday",
+      	"apply leave tomorrow",
+      	"apply leave from tomorrow to next 3 days",
+      	"apply leave on next 2 days"
+    ]
+}
