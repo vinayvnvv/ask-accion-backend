@@ -1,4 +1,5 @@
-var PROFILES = require('./../../json/profiles.json');
+// var PROFILES = require('./../../json/profiles.json');
+const PROFILES = [];
 class AICService {
     getProfilesBySkills(skillKey, callback) {
         var peoples = [];

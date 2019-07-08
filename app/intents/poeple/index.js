@@ -115,6 +115,11 @@ class PeopleIntent {
         })
 
         console.log(pplCard);
+        if(pplCard.length === 0) {
+            const resMsg = ResponseService.createTextResponse('Skill information is blocked as of now!');  
+            ResponseService.sendMsgToClient(resMsg, this.bucket, this.connectionType);
+            return;
+        }
         const resMsg = ResponseService.createTextResponse('Here Are the list of skills with ' + SKILLS);
         resMsg.type = 'peopleListCard';
         resMsg.peopleListCard = pplCard;
