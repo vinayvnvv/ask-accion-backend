@@ -30,6 +30,7 @@ class App {
             this.emailId = body.emailId;
             this.empId = body.empId;
             this.bucket = bucket;
+            this.headers = body.headers;
             this.connectionType = connectionType;
             HttpService.queryToDailogFlow(body.msg, body.uuid).then((response) => {
                 // console.log(response.data.result.fulfillment);

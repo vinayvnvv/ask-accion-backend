@@ -3,6 +3,8 @@ const FIELDS_VALUES = require('./constants').FIELDS_VALUES;
 const ACTIONS = require('./constants').ACTIONS;
 const PARAMS_NAMES = require('./../constants').PARAMS_NAMES;
 const ENV = require('./../../../env.json');
+const COMMON_CONSTANTS = require('./../../constants');
+const { FILTER_POEPLE_FIELDS } = COMMON_CONSTANTS;
 const ResponseService = require('./../../services/message-response');
 const ZohoService = require('./../../services/zoho-service');
 const CommonService = require('./../../services/common-service');
@@ -83,7 +85,7 @@ class PeopleIntent {
                     } else {
                         const peopleListCardsData = CommonService.createPeopleData(data.response.result);
                         var responseObj = ResponseService.createTextResponse('Which ' + GIVEN_NAME + ' you are looking for?');
-                        responseObj.peopleList = peopleListCardsData;
+                        responseObj.peopleList = ZohoService.getSecureFieldsFromPeople(peopleListCardsData, FILTER_POEPLE_FIELDS.INIT);
                         responseObj.type = 'people-list';
                         ResponseService.sendMsgToClient(responseObj, this.bucket, this.connectionType);
                     }

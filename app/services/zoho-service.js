@@ -1,5 +1,7 @@
 const env = require('./../../env.json');
 const axios = require('axios');
+const COMMON_CONSTANTS = require('./../constants');
+const { FILTER_POEPLE_FIELDS } = COMMON_CONSTANTS;
 class ZohoService {
     getUserReport(date, emailId) {
         const op = "emailId=vinay.bv@accionlabs.com&sdate=2019-02-14 00:00:00&edate=2019-02-14 12:59:59&dateFormat=yyyy-MM-dd HH:mm:ss";
@@ -23,7 +25,7 @@ class ZohoService {
             "Leavetype":    leaveType,
             "From":         fromDate,
             "To":           toDate
-        };
+        };  
         const urlParams = "?authtoken=" + env.zoho.authToken + "&inputData=" + JSON.stringify(inputParams);
         const url = env.zoho.host + 'forms/json/leave/insertRecord' + urlParams;
         const httpConfig = {
@@ -63,6 +65,7 @@ class ZohoService {
                 obj.empId = key;
                 obj.emp = res.data.response.result[0][key]
             })
+            obj.emp = this.getSecureFieldsFromPeople(obj.emp, FILTER_POEPLE_FIELDS.INIT)
             callback(obj);
         }).catch((err) => {
             console.log(err);
@@ -107,6 +110,13 @@ class ZohoService {
             console.log(err);
             callback(err, null);
         });
+    }
+    getSecureFieldsFromPeople(peoples, fields) {
+        return [...peoples.map(i=> {
+            var obj = {};
+            fields.forEach(j=>obj[j]=i[j]);
+            return obj;
+        })];
     }
 }
 module.exports = new ZohoService(); 
