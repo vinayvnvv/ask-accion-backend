@@ -10,12 +10,18 @@ const ZohoService = require('./../../services/zoho-service');
 const CommonService = require('./../../services/common-service');
 const NLPService = require('./../../services/nlp-service');
 const AICService = require('./../../services/aic.service');
+const DailogFlow = require('./../../services/dailogflow.service');
 class PeopleIntent {
-    doAction(action, data, bucket, connectionType, empId) {
+    doAction(action, data, bucket, connectionType, empId, headers) {
         this.bucket = bucket;
         this.connectionType = connectionType;
         this.data = data;
         this.empId = empId;
+        if(!this.canAccess(headers)) {
+            const responseMsg = ResponseService.createTextResponse("Sorry!, You don't have access to view the people actions.");
+            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+            return;
+        }
         console.log('inside PeopleIntent with action: ', action);
         switch (action) {
             case ACTIONS.GET_USER_INFO:
@@ -27,9 +33,15 @@ class PeopleIntent {
         }
     }
 
+    canAccess(headers) {
+        if(!headers) return false;
+        if(headers[COMMON_CONSTANTS.HEADERS.ROLE] === COMMON_CONSTANTS.ROLES.ADMIN.VALUE) return true;
+        return false;
+    }
+
     async getUserInfo() {
         console.log('Get User Info Action--->', this.data);
-        const params = this.data.result.parameters;
+        const params = DailogFlow.parseDailogFlowParams(this.data.parameters);
         // const actionIncomplete = this.data.result.actionIncomplete;
         // const fullfillmentMsg = this.data.result.fulfillment.speech;
         var GIVEN_NAME = params[PARAMS_NAMES.GIVEN_NAME] || params[PARAMS_NAMES.ANY];
@@ -85,7 +97,7 @@ class PeopleIntent {
                     } else {
                         const peopleListCardsData = CommonService.createPeopleData(data.response.result);
                         var responseObj = ResponseService.createTextResponse('Which ' + GIVEN_NAME + ' you are looking for?');
-                        responseObj.peopleList = ZohoService.getSecureFieldsFromPeople(peopleListCardsData, FILTER_POEPLE_FIELDS.INIT);
+                        responseObj.peopleList = ZohoService.getSecureFieldsFromPeople(peopleListCardsData, FILTER_POEPLE_FIELDS.PEOPLE_LIST);
                         responseObj.type = 'people-list';
                         ResponseService.sendMsgToClient(responseObj, this.bucket, this.connectionType);
                     }

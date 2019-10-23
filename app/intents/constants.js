@@ -1,8 +1,8 @@
 module.exports = {
     SHORT_INTENTS: {
-        ATTENDENCE: 'attendence',
+        ATTENDANCE: 'attendance',
         LEAVE: 'leave',
-        PEOPLE: 'poeple'
+        PEOPLE: 'poeple',
     },
     INTENT_TYPE: {
         STATIC: 'static',
@@ -17,6 +17,16 @@ module.exports = {
         EMAIL: 'email',
         GIVEN_NAME: 'given-name',
         ANY: 'any',
-        SKILLS: 'skills'
+        SKILLS: 'skills',
+        NUMBER: 'number',
+        END_DATE: 'endDate',
+        START_DATE: 'startDate',
+        RANGE_GAP: 'range_gap',
+    },
+    PARAMS_VALUES: {
+        RANGE_GAP: {
+            LAST: 'LAST',
+            FIRST: 'FIRST'
+        }
     }
 }

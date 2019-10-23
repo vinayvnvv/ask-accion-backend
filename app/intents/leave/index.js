@@ -1,17 +1,22 @@
 const ACTION = require('./constants').ACTIONS;
 const PARAMS_NAMES = require('./../constants').PARAMS_NAMES;
 const LEAVE_TYPES = require('./constants').LEAVE_TYPES_ID;
+const COMMON_CONSTANTS = require('./../../constants');
+const { HEADERS } = COMMON_CONSTANTS;
 const ResponseService = require('./../../services/message-response');
-const ENV = require('./../../../env.json');
-const msgChannel = ENV.socket.msgchannel;
 const DateService = require('./../../services/date.service');
 const ZohoServive = require('./../../services/zoho-service');
+const DailogFlowService = require('./../../services/dailogflow.service');
+const CommonService = require('./../../services/common-service');
+const moment = require('moment');
+
 class LeaveIntent {
-    doAction(action, data, bucket, connectionType, empId) {
+    doAction(action, data, bucket, connectionType, empId, headers) {
         this.bucket = bucket;
         this.connectionType = connectionType;
         this.data = data;
         this.empId = empId;
+        this.headers = headers;
         console.log('inside LeaveIntent with action: ', action);
         switch(action) {
             case ACTION.APPLY_LEAVE: 
@@ -23,16 +28,19 @@ class LeaveIntent {
             case ACTION.LEAVE_BALANCE_INFO:
                 this.getLeaveInfo();
                 break;
+            case ACTION.APPLIED_LEAVES_INFO:
+                this.getAppliedLeavesInfo();
+                break;
         }
     }
 
     async applyLeave(isWorkingFromHome) {
-        console.log('apply leave', this.dat, isWorkingFromHome);
-        const params = this.data.result.parameters;
-        const actionIncomplete = this.data.result.actionIncomplete;
-        const fullfillmentMsg = this.data.result.fulfillment.speech;
+        console.log('apply leave', this.data, isWorkingFromHome);
+        const params = DailogFlowService.parseDailogFlowParams(this.data.parameters);
+        const allRequiredParamsCollected = this.data.allRequiredParamsCollected;
+        const fullfillmentMsg = this.data.fulfillmentText;
         let msg = {};
-        if(!actionIncomplete) {
+        if(allRequiredParamsCollected) {
             var fromDate = '';
             var toDate = '';
             console.log(params);
@@ -44,8 +52,8 @@ class LeaveIntent {
                 fromDate = toDate = DateService.getApplyLeaveDateFormat(params[PARAMS_NAMES.DATE_OR_PERIOD][PARAMS_NAMES.DATE]);
             }
             const leaveType = (isWorkingFromHome ? LEAVE_TYPES.WORK_FROM_HOME : LEAVE_TYPES[params[PARAMS_NAMES.LEAVE_TYPE]]);
-            console.log("leaveType", leaveType, LEAVE_TYPES.WORK_FROM_HOME)
-            const response = await ZohoServive.applyLeave(this.empId, fromDate, toDate, leaveType);
+            console.log("leaveType", leaveType, LEAVE_TYPES.WORK_FROM_HOME, fromDate)
+            // const response = await ZohoServive.applyLeave(this.empId, fromDate, toDate, leaveType);
             console.log("response", response);
             msg = ResponseService.createTextResponse(response);
         } else {
@@ -57,7 +65,7 @@ class LeaveIntent {
 
     async getLeaveInfo() {
         console.log('inside leave balance action');
-        const params = this.data.result.parameters;
+        const params = DailogFlowService.parseDailogFlowParams(this.data.parameters);
         var msg;
         ZohoServive.getLeaveTypeDetails(this.empId, (err, res) => {
             console.log(err, res);
@@ -93,6 +101,54 @@ class LeaveIntent {
             }
             ResponseService.sendMsgToClient(msg, this.bucket, this.connectionType);
         })
+    }
+
+    async getAppliedLeavesInfo() {
+        console.log('getAppliedLeavesInfo', this.headers, this.data.parameters);
+        const role = this.headers[HEADERS.EMP_ID];
+        const params = DailogFlowService.parseDailogFlowParams(this.data.parameters);
+        console.log('params', params);
+        let limit = 6;
+        try {
+            const _date = params[PARAMS_NAMES.DATE_OR_PERIOD][PARAMS_NAMES.DATE_PERIOD];
+            const res = await ZohoServive.getAppliedLeavesInfo(role, (_date ? -1 : limit));
+            if(res.data && res.data[0] && res.data[0].errorcode) {
+                msg = ResponseService.createTextResponse(res.data[0].message + ' [Zoho Error]');
+            } else {
+                let {data} = res;
+                let msg;
+                if(_date) {
+                    data = data.filter(i=>moment(i.From).isBetween(_date[PARAMS_NAMES.START_DATE], _date[PARAMS_NAMES.END_DATE]));
+                }
+                if(params[PARAMS_NAMES.NUMBER]) {
+                    limit = params[PARAMS_NAMES.NUMBER];
+                }
+                if(limit < data.length) data = data.slice(0, limit);
+                
+                if(data.length === 0) {
+                    msg = ResponseService.createTextResponse('No Leaves are Applied');
+                } else {
+                    msg = ResponseService.createTextResponse('Here is the list of leaves you have applied')
+                    const listView = [];
+                    data.forEach(leave=>{
+                        listView.push(CommonService.createListViewCard(
+                            'Leave Type: ' + leave['Leave Type'],
+                            'Applied ' + (leave.From === leave.To ? ('on ' + leave.From) : (' from ' + leave.From + ' to ' + leave.To)) + '(' + leave['Days Taken'] + ' days)',
+                            'Approval Status: ' + leave['ApprovalStatus']
+                        ))
+                    });
+                    msg.type = 'listView';
+                    msg['listView'] = listView;
+
+                }
+                ResponseService.sendMsgToClient(msg, this.bucket, this.connectionType);
+            }
+            
+        } catch(err) {
+            console.log(err);
+            const msg = ResponseService.createTextResponse("Sorry, Error in server while quering... Please try again..");
+            ResponseService.sendMsgToClient(msg, this.bucket, this.connectionType);
+        }
     }
 }
 module.exports = new LeaveIntent();

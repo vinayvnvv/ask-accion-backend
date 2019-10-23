@@ -2,7 +2,8 @@ module.exports = {
     ACTIONS: {
         APPLY_LEAVE: 'apply_leave',
         WORKING_FROM_HOME: 'working_from_home_apply',
-        LEAVE_BALANCE_INFO: 'leaves-balance_info'
+        LEAVE_BALANCE_INFO: 'leaves-balance_info',
+        APPLIED_LEAVES_INFO: 'applied_leaves_info',
     },
     LEAVE_TYPES_ID: {
         SICK: "393858000000123013",

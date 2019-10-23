@@ -44,6 +44,21 @@ class ZohoService {
     }
 
 
+    async getAppliedLeavesInfo(empId, limit) {
+        let urlParams = "?authtoken=" + env.zoho.authToken + "&searchColumn=EmployeeID&searchValue=" + empId;
+        if(limit !== -1) {
+            urlParams += ("&rec_limit=" + limit);
+        }
+        const url = env.zoho.host + 'forms/P_ApplyLeaveView/records' + urlParams;
+        const httpConfig = {
+            url,
+            method: 'get'
+        };
+        const res = await axios(httpConfig);
+        return res;
+    }
+
+
     getEmpId(emailId, callback) {
         const searchParams = {
             searchField: 'EmailID', 
@@ -60,12 +75,15 @@ class ZohoService {
         };
         console.log(searchParams, urlParams);
         axios(httpConfig).then((res) => {
-            const obj = {};
+            let obj = {};
             Object.keys(res.data.response.result[0]).map((key, index) => {
-                obj.empId = key;
-                obj.emp = res.data.response.result[0][key]
+                if(res.data.response.result[0] && res.data.response.result[0][key]) {
+                    obj = res.data.response.result[0][key];
+                    obj = this.getSecureFieldsFromPeople(obj, FILTER_POEPLE_FIELDS.INIT);
+                    obj = obj[0];
+                    obj['empId'] = key;
+                }
             })
-            obj.emp = this.getSecureFieldsFromPeople(obj.emp, FILTER_POEPLE_FIELDS.INIT)
             callback(obj);
         }).catch((err) => {
             console.log(err);
@@ -118,5 +136,18 @@ class ZohoService {
             return obj;
         })];
     }
+
+    async getAttendanceReport(emailId, sdate, edate) {
+        const urlParams = "?authtoken=" + env.zoho.authToken + "&emailId=" + emailId + "&sdate=" + sdate + "&edate=" + edate;
+        const url = env.zoho.host + 'attendance/getUserReport' + urlParams;
+        console.log(url);
+        const httpConfig = {
+            url,
+            method: 'get'
+        };
+        const res = axios(httpConfig);
+        return res;
+    }
+
 }
 module.exports = new ZohoService(); 

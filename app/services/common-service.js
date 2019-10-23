@@ -30,5 +30,15 @@ class CommonService {
             name, email, photo, desc, onClickText
         }
     }
+
+    createListViewCard(title, desc, ...sections) {
+        const obj = {};
+        if(title) obj['title'] = title;
+        if(desc) obj['desc'] = desc;
+        if(sections && sections.length>0 && sections[0]) {
+            obj['sections'] = sections;
+        }
+        return obj;
+    }
 }
 module.exports = new CommonService();

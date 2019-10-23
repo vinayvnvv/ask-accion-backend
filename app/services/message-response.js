@@ -54,20 +54,31 @@ class MessageResponse {
     }
 
     parseCustomPayload(data) {
-        if(!data) return false;
-        var custom = {};
-        const messages = data.messages;
-        if(messages) {
-            messages.forEach((msg) => {
-                if(msg.type === 4 && msg.payload) {
-                    const payload = msg.payload;
-                    if(payload.type) {
-                        custom.type = payload.type;
-                        custom[payload.type] = payload[payload.type]
+        if(!data || data.length === 0) {
+            return false;
+        }
+        const custom = {};
+        data.forEach((msg) => {
+            if(msg.message === 'payload') {
+                const { fields } = msg.payload;
+                if(fields['list']) {
+                    const {list} = fields;
+                    if(list) {
+                        const listValue = list[list['kind']]
+                        if(listValue) {
+                            const { values } = listValue;
+                            if(values && values.length > 0) {
+                                custom['type'] = 'list';
+                                custom['list'] = [];
+                                values.forEach(v=>{
+                                    custom['list'].push(v[v['kind']]);
+                                });
+                            }
+                        }
                     }
                 }
-            })
-        }
+            }
+        });
         if(custom.type) return custom;
         else return false;
      }
