@@ -83,10 +83,11 @@ class AttendenceIntent {
                     let desc, sections;
                     if(!isHoliday) {
                         desc = "Working Hours: " + val['WorkingHours'];
-                        sections = moment(val['FirstIn']).format('LT') + " to " + moment(val['LastOut']).format('LT');
+                        if(moment(val['FirstIn']).isValid() && moment(val['LastOut']).isValid())
+                            sections = moment(val['FirstIn']).format('LT') + " to " + moment(val['LastOut']).format('LT');
                     }
                     listView.push(CommonService.createListViewCard(
-                        k + " - " + val['Status'],
+                        k + " - " + (val['Status'] ? val['Status'] : 'Not Recorded'),
                         desc,
                         sections,
                     ))
@@ -95,7 +96,8 @@ class AttendenceIntent {
                     let lDate = left.title.split(" - ");
                     let rDate = right.title.split(" - ");
                     return moment.utc(lDate[0]).diff(moment.utc(rDate[0]));
-                })
+                });
+                if(_rangeGap !== PARAMS_VALUES.RANGE_GAP.FIRST && !_datePeriod) listView.reverse();
                 msg = ResponseService.createTextResponse(textMsg);
                 msg.type = "listView";
                 msg.listView = listView;

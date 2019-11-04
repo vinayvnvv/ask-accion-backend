@@ -37,10 +37,11 @@ class LeaveIntent {
     async applyLeave(isWorkingFromHome) {
         console.log('apply leave', this.data, isWorkingFromHome);
         const params = DailogFlowService.parseDailogFlowParams(this.data.parameters);
-        const allRequiredParamsCollected = this.data.allRequiredParamsCollected;
+        const allRequiredParamsPresent = this.data.allRequiredParamsPresent;
+        console.log('allRequiredParamsCollected', allRequiredParamsPresent)
         const fullfillmentMsg = this.data.fulfillmentText;
         let msg = {};
-        if(allRequiredParamsCollected) {
+        if(allRequiredParamsPresent) {
             var fromDate = '';
             var toDate = '';
             console.log(params);
@@ -53,7 +54,7 @@ class LeaveIntent {
             }
             const leaveType = (isWorkingFromHome ? LEAVE_TYPES.WORK_FROM_HOME : LEAVE_TYPES[params[PARAMS_NAMES.LEAVE_TYPE]]);
             console.log("leaveType", leaveType, LEAVE_TYPES.WORK_FROM_HOME, fromDate)
-            // const response = await ZohoServive.applyLeave(this.empId, fromDate, toDate, leaveType);
+            const response = await ZohoServive.applyLeave(this.empId, fromDate, toDate, leaveType);
             console.log("response", response);
             msg = ResponseService.createTextResponse(response);
         } else {

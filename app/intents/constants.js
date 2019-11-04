@@ -3,6 +3,7 @@ module.exports = {
         ATTENDANCE: 'attendance',
         LEAVE: 'leave',
         PEOPLE: 'poeple',
+        PROJECT: 'project',
     },
     INTENT_TYPE: {
         STATIC: 'static',
@@ -22,6 +23,7 @@ module.exports = {
         END_DATE: 'endDate',
         START_DATE: 'startDate',
         RANGE_GAP: 'range_gap',
+        ME_ENTITY: 'me-entity',
     },
     PARAMS_VALUES: {
         RANGE_GAP: {

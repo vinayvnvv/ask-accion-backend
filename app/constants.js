@@ -14,7 +14,8 @@ module.exports = {
     },
     HEADERS: {
         ROLE: 'role',
-        EMP_ID: 'employeeId'
+        EMP_ID: 'employeeId',
+        DEPARTMENT: 'department',
     },
     DATE_FORMATS: {
         ZOHO_DATE_FORMAT: 'DD-MMM-YYYY'

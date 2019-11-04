@@ -5,6 +5,7 @@ const CommonService = require('./services/common-service');
 const AttendenceIntent = require('./intents/attendence');
 const LeaveIntent = require('./intents/leave');
 const PeopleIntent = require('./intents/poeple');
+const ProjectIntent = require('./intents/project');
 const SHORT_INTENTS = require('./intents/constants').SHORT_INTENTS;
 const INTENT_TYPES = require('./intents/constants').INTENT_TYPE;
 const ZohoService = require('./services/zoho-service');
@@ -72,6 +73,9 @@ class App {
                 break;
             case SHORT_INTENTS.PEOPLE:
                 PeopleIntent.doAction(intentDetails.action, data, this.bucket, this.connectionType, this.empId, this.headers);
+                break;
+            case SHORT_INTENTS.PROJECT:
+                ProjectIntent.doAction(intentDetails.action, data, this.bucket, this.connectionType, this.empId, this.headers);
                 break;
         }
         
