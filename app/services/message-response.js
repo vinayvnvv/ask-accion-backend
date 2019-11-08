@@ -53,6 +53,24 @@ class MessageResponse {
         return obj;
     }
 
+    processCustomPayloadMessage(object) {
+        let outputMessage = Array.isArray(object) ? [] : {};
+        Object.entries(object).forEach(([key, value]) => {
+            if (value.kind == 'structValue') {
+            outputMessage[key] = this.processCustomPayloadMessage(value.structValue.fields);
+            } else if (value.kind == 'listValue') {
+            outputMessage[key] = this.processCustomPayloadMessage(value.listValue.values);
+            } else if (value.kind == 'stringValue') {
+            outputMessage[key] = value.stringValue;
+            } else if (value.kind == 'boolValue') {
+            outputMessage[key] = value.boolValue;
+            } else {
+            outputMessage[key] = value;
+            }
+        });
+        return outputMessage;
+    }
+
     parseCustomPayload(data) {
         if(!data || data.length === 0) {
             return false;
@@ -61,21 +79,27 @@ class MessageResponse {
         data.forEach((msg) => {
             if(msg.message === 'payload') {
                 const { fields } = msg.payload;
-                if(fields['list']) {
-                    const {list} = fields;
-                    if(list) {
-                        const listValue = list[list['kind']]
-                        if(listValue) {
-                            const { values } = listValue;
-                            if(values && values.length > 0) {
-                                custom['type'] = 'list';
-                                custom['list'] = [];
-                                values.forEach(v=>{
-                                    custom['list'].push(v[v['kind']]);
-                                });
-                            }
-                        }
-                    }
+                const payload = this.processCustomPayloadMessage(fields);
+                console.log("payload", payload);    
+                // if(fields['list']) {
+                //     const {list} = fields;
+                //     if(list) {
+                //         const listValue = list[list['kind']]
+                //         if(listValue) {
+                //             const { values } = listValue;
+                //             if(values && values.length > 0) {
+                //                 custom['type'] = 'list';
+                //                 custom['list'] = [];
+                //                 values.forEach(v=>{
+                //                     custom['list'].push(v[v['kind']]);
+                //                 });
+                //             }
+                //         }
+                //     }
+                // }
+                if(!custom.type && payload.type) {
+                    custom['type'] = payload.type;
+                    custom[payload.type] = payload[payload.type];
                 }
             }
         });

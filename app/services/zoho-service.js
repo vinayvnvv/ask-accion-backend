@@ -149,5 +149,38 @@ class ZohoService {
         return res;
     }
 
+    getEmpDetailsByEmailId(emailId, callback) {
+        const searchParams = {
+            searchField: 'EmailID', 
+            searchOperator: 'Contains', 
+            searchText : emailId
+        };
+
+        const urlParams = "?authtoken=" + env.zoho.authToken + "&searchParams=" + JSON.stringify(searchParams);
+        const url = env.zoho.host + 'forms/employee/getRecords' + urlParams;
+        console.log(url);
+        const httpConfig = {
+            url,
+            method: 'get'
+        };
+        console.log(searchParams, urlParams);
+        axios(httpConfig).then((res) => {
+            Object.keys(res.data.response.result[0]).map((key, index) => {
+                if(res.data.response.result[0] && res.data.response.result[0][key]) {
+                    let obj;
+                    obj = res.data.response.result[0][key];
+                    obj = this.getSecureFieldsFromPeople(obj, FILTER_POEPLE_FIELDS.INIT);
+                    obj = obj[0];
+                    callback(null, obj);
+                } else {
+                    callback(true);
+                }
+            });
+        }).catch((err) => {
+            console.log(err);
+            callback(err);
+        });
+    }
+
 }
-module.exports = new ZohoService(); 
+module.exports = new ZohoService();     

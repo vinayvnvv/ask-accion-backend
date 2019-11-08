@@ -47,5 +47,23 @@ class DailogFlow {
         console.log('parsed params ->>>>', out);
         return out;
     }
+
+    parseStructParams(object) {
+        let outputMessage = Array.isArray(object) ? [] : {};
+        Object.entries(object).forEach(([key, value]) => {
+            if (value.kind == 'structValue') {
+            outputMessage[key] = this.parseStructParams(value.structValue.fields);
+            } else if (value.kind == 'listValue') {
+            outputMessage[key] = this.parseStructParams(value.listValue.values);
+            } else if (value.kind == 'stringValue') {
+            outputMessage[key] = value.stringValue;
+            } else if (value.kind == 'boolValue') {
+            outputMessage[key] = value.boolValue;
+            } else {
+            outputMessage[key] = value;
+            }
+        });
+        return outputMessage;
+    }
 }
 module.exports = new DailogFlow();

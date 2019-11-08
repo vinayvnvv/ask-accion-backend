@@ -40,8 +40,9 @@ class PeopleIntent {
     }
 
     async getUserInfo() {
-        console.log('Get User Info Action--->', this.data);
-        const params = DailogFlow.parseDailogFlowParams(this.data.parameters);
+        console.log('Get User Info Action--->', this.data, JSON.stringify(this.data.parameters));
+        const params = DailogFlow.parseStructParams(this.data.parameters.fields);
+        console.log('params', params);
         // const actionIncomplete = this.data.result.actionIncomplete;
         // const fullfillmentMsg = this.data.result.fulfillment.speech;
         var GIVEN_NAME = params[PARAMS_NAMES.GIVEN_NAME] || params[PARAMS_NAMES.ANY];
@@ -76,7 +77,7 @@ class PeopleIntent {
                 }
                 const msg = FILTER + " : " + value;
                 const responseMsg = ResponseService.createTextResponse(msg);
-                console.log('CONTEXTS', this.data.result.contexts);
+                // console.log('CONTEXTS', this.data.result.contexts);
                 if(FILTER === FILEDS.CALL) {
                     responseMsg.isCall = true;
                 }
