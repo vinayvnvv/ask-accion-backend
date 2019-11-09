@@ -53,7 +53,8 @@ class App {
 
     handleStaticIntent(data, intent, intentType) {
         console.log('static intent handle', intent, intentType);
-        var msg = msgResponse.createTextResponse(data.fulfillmentText, data.fulfillmentMessages);
+        const text = data.fulfillmentText;
+        var msg = msgResponse.createTextResponse(text, data.fulfillmentMessages);
         msg.intent = intent;
         msg = CommonService.appendAutoSuggestion(msg);
         msgResponse.sendMsgToClient(msg, this.bucket, this.connectionType)

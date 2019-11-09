@@ -18,7 +18,7 @@ class PeopleIntent {
         this.data = data;
         this.empId = empId;
         if(!this.canAccess(headers)) {
-            const responseMsg = ResponseService.createTextResponse("Sorry!, You don't have access to view the people actions.");
+            const responseMsg = ResponseService.createTextResponse("Sorry!, You don't have access to view the people actions. Only Managers and Business HR's can view this actions.[[sug]]What else can you do?[[/sug]]");
             ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
             return;
         }

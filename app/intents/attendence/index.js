@@ -70,7 +70,7 @@ class AttendenceIntent {
                 textMsg = 'Here is your attendance status from ' + _dateFrom + ' to ' + _dateTo;
             }
             if(moment(_dateFrom).isAfter(new Date())) {
-                msg = ResponseService.createTextResponse("Sorry, Attendance is Not Available for future dates, You can Try below..[[sug]]My Attendance Yesterday, Attendance of March 2019, My Last 10 Attendance list[[/sug]]");
+                msg = ResponseService.createTextResponse("Sorry, Attendance is Not Available for future dates, You can Try below..[[sug]]My Attendance Yesterday, Attendance of " + moment(_dateFrom).format('MMM') + " " + new Date().getFullYear() +", My Last 10 Attendance list[[/sug]]");
             } else {
                 console.log('_date', _date, _datePeriod);
                 const res = await ZohoService.getAttendanceReport(this.emailId, _dateFrom, _dateTo);

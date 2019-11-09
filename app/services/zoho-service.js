@@ -171,6 +171,7 @@ class ZohoService {
                     obj = res.data.response.result[0][key];
                     obj = this.getSecureFieldsFromPeople(obj, FILTER_POEPLE_FIELDS.INIT);
                     obj = obj[0];
+                    obj['empId'] = key;
                     callback(null, obj);
                 } else {
                     callback(true);
