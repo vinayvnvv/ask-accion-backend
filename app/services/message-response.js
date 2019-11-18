@@ -116,6 +116,9 @@ class MessageResponse {
             bucket.send(data);
         }
     }
+    createTextResponseWithNotUnderStanding() {
+        return this.createTextResponse(`I didn't get that. You can try below things..![[sug]]What can you do?[[/sug]]`);
+    }
 }
 
 module.exports = new MessageResponse();

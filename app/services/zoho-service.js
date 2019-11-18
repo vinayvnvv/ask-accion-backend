@@ -183,5 +183,46 @@ class ZohoService {
         });
     }
 
+    getEmpDataByParams(searchField, searchText, callback) {
+        const searchParams = {
+            searchField, 
+            searchOperator: 'Contains', 
+            searchText,
+        };
+
+        const urlParams = "?authtoken=" + env.zoho.authToken + "&searchParams=" + JSON.stringify(searchParams);
+        const url = env.zoho.host + 'forms/employee/getRecords' + urlParams;
+        console.log(url);
+        const httpConfig = {
+            url,
+            method: 'get'
+        };
+        console.log(searchParams, urlParams);
+        try {
+            axios(httpConfig).then((res) => {
+                let result = [];
+                res.data.response.result.forEach(emp => {
+                    Object.keys(emp).map((key, index) => {
+                        if(emp && emp[key]) {
+                            let obj;
+                            obj = emp[key];
+                            obj = this.getSecureFieldsFromPeople(obj, FILTER_POEPLE_FIELDS.INIT);
+                            result.push(obj[0]);
+                            
+                        }
+                    });
+                })
+                callback(null, result);
+                
+            }).catch((err) => {
+                console.log(err);
+                callback(err);
+            });
+        } catch(err) {
+            callback(true, null);
+        }
+        
+    }
+
 }
 module.exports = new ZohoService();     

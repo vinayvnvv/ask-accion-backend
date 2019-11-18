@@ -15,9 +15,10 @@ class PeopleIntent {
     doAction(action, data, bucket, connectionType, empId, headers) {
         this.bucket = bucket;
         this.connectionType = connectionType;
+        this.headers = headers;
         this.data = data;
         this.empId = empId;
-        if(!this.canAccess(headers)) {
+        if(action === ACTIONS.GET_USER_INFO && !this.canAccess(headers)) {
             const responseMsg = ResponseService.createTextResponse("Sorry!, You don't have access to view the people actions. Only Managers and Business HR's can view this actions.[[sug]]What else can you do?[[/sug]]");
             ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
             return;
@@ -114,32 +115,41 @@ class PeopleIntent {
 
     getPeopleBySkill() {
         console.log('Get getPeopleBySkill Action--->', this.data);
-        const params = this.data.result.parameters;
+        const params = DailogFlow.parseStructParams(this.data.parameters.fields);
         const SKILLS = params[PARAMS_NAMES.SKILLS];
         const pplCard = [];
-        console.log('SKILLS', SKILLS)
+        console.log('SKILLS', SKILLS);
 
-        AICService.getProfilesBySkills(SKILLS.toLowerCase(), (err, data) => {
-            console.log('data', data[0]);
-            if(data.length > 0) {
-                data.forEach((ppl) => {
-                    pplCard.push(CommonService.createPoepleCardList(ppl._source.name, ppl._source.email, ppl._source.photograph, [ppl._source.designation], null));
-                })
-               
-            }
-        })
-
-        console.log(pplCard);
-        if(pplCard.length === 0) {
-            const resMsg = ResponseService.createTextResponse('Skill information is blocked as of now!');  
-            ResponseService.sendMsgToClient(resMsg, this.bucket, this.connectionType);
+        if(!SKILLS) {
+            let responseMsg = ResponseService.createTextResponseWithNotUnderStanding();
+            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
             return;
         }
-        const resMsg = ResponseService.createTextResponse('Here Are the list of skills with ' + SKILLS);
-        resMsg.type = 'peopleListCard';
-        resMsg.peopleListCard = pplCard;
-        ResponseService.sendMsgToClient(resMsg, this.bucket, this.connectionType);
-        console.log("Profiles", pplCard);
+
+        ZohoService.getEmpDataByParams('Expertise', SKILLS, (err, result) => {
+            let responseMsg;
+            if(err) {
+                responseMsg = ResponseService.createTextResponse('Error in server, Please Try Again!!!');
+            } 
+            else if(!result || result.length === 0) {
+                responseMsg = ResponseService.createTextResponse("No people's are found with the skill " + SKILLS);
+            } else {
+                let listView = [];
+                result.forEach(emp => {
+                    listView.push(
+                        CommonService.createListViewCard(
+                            emp['FirstName'] + " " + emp['LastName'],
+                            emp['Work_location'],
+                            emp['EmailID'] + (this.canAccess(this.headers) ? (" - " + emp["Mobile"]) : "")
+                        )
+                    );
+                });
+                responseMsg = ResponseService.createTextResponse("Here is the " + listView.length + " people's with " + SKILLS + ' skills.');
+                responseMsg.type = 'listView';
+                responseMsg.listView = listView;
+            }
+            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+        });
     }
 }
 module.exports = new PeopleIntent();
