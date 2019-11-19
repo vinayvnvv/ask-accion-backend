@@ -18,6 +18,10 @@ class PeopleIntent {
         this.headers = headers;
         this.data = data;
         this.empId = empId;
+        if(action === ACTIONS.GET_USER_INFO && this.isSecureAccessForNormalEmp(headers, data)) {
+            this.handleSecureAccessForNormalEmp();
+            return;
+        }
         if(action === ACTIONS.GET_USER_INFO && !this.canAccess(headers)) {
             const responseMsg = ResponseService.createTextResponse("Sorry!, You don't have access to view the people actions. Only Managers and Business HR's can view this actions.[[sug]]What else can you do?[[/sug]]");
             ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
@@ -32,6 +36,20 @@ class PeopleIntent {
                 this.getPeopleBySkill();
                 break;
         }
+    }
+
+    isSecureAccessForNormalEmp(headers, data) {
+        const params = DailogFlow.parseStructParams(this.data.parameters.fields);
+        var FILTER = params[PARAMS_NAMES.USER_INFO_FILTER];
+        if(FILTER.indexOf(FILEDS.CALL) !== -1 && FILTER.indexOf(FILEDS.HR) !== -1) return true;
+        console.log('isSecureAccessForNormalEmp', FILTER, FILEDS.CALL, FILEDS.HR);
+        return false;
+    }
+
+    handleSecureAccessForNormalEmp() {
+        const responseMsg = ResponseService.createTextResponse('calling to ' + this.headers[COMMON_CONSTANTS.HEADERS.HR]);
+        responseMsg.resetSession = true;
+        ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
     }
 
     canAccess(headers) {

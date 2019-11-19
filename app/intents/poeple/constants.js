@@ -16,7 +16,8 @@ module.exports = {
         ALTERNATIVE_EMAIL: 'ALTERNATIVE_EMAIL',
         EMP_ID: 'EMP_ID',
         EXPERIENCE: 'EXPERIENCE',
-        DATE_OF_JOINING: 'DATE_OF_JOINING'
+        DATE_OF_JOINING: 'DATE_OF_JOINING',
+        HR: 'HR',
     },
     FIELDS_VALUES: {
         PROJECT: ['Department'],
@@ -32,6 +33,6 @@ module.exports = {
         EMP_ID: ['EmployeeID'],
         EXPERIENCE: ['Experience'],
         DATE_OF_JOINING: ['Dateofjoining'],
-        FIRST_NAME: ['FirstName']
+        FIRST_NAME: ['FirstName'],
     }
 }
