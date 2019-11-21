@@ -17,6 +17,7 @@ module.exports = {
         EMP_ID: 'employeeId',
         DEPARTMENT: 'department',
         HR: 'hr',
+        MANAGER: 'manager',
     },
     DATE_FORMATS: {
         ZOHO_DATE_FORMAT: 'DD-MMM-YYYY'

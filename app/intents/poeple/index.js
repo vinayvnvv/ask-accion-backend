@@ -18,12 +18,14 @@ class PeopleIntent {
         this.headers = headers;
         this.data = data;
         this.empId = empId;
-        if(action === ACTIONS.GET_USER_INFO && this.isSecureAccessForNormalEmp(headers, data)) {
-            this.handleSecureAccessForNormalEmp();
+        let subAction;
+        if(action === ACTIONS.GET_USER_INFO && (subAction = this.isSecureAccessForNormalEmp(headers, data))) {
+            this.handleSecureAccessForNormalEmp(subAction);
             return;
         }
         if(action === ACTIONS.GET_USER_INFO && !this.canAccess(headers)) {
             const responseMsg = ResponseService.createTextResponse("Sorry!, You don't have access to view the people actions. Only Managers and Business HR's can view this actions.[[sug]]What else can you do?[[/sug]]");
+            responseMsg.resetSession = true;
             ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
             return;
         }
@@ -41,15 +43,44 @@ class PeopleIntent {
     isSecureAccessForNormalEmp(headers, data) {
         const params = DailogFlow.parseStructParams(this.data.parameters.fields);
         var FILTER = params[PARAMS_NAMES.USER_INFO_FILTER];
-        if(FILTER.indexOf(FILEDS.CALL) !== -1 && FILTER.indexOf(FILEDS.HR) !== -1) return true;
+        if(FILTER.indexOf(FILEDS.CALL) !== -1 && FILTER.indexOf(FILEDS.HR) !== -1) return 'HR_CALL';
+        if(FILTER.indexOf(FILEDS.CALL) !== -1 && FILTER.indexOf(FILEDS.MANAGER) !== -1) return 'MANAGER_CALL';
         console.log('isSecureAccessForNormalEmp', FILTER, FILEDS.CALL, FILEDS.HR);
         return false;
     }
 
-    handleSecureAccessForNormalEmp() {
-        const responseMsg = ResponseService.createTextResponse('calling to ' + this.headers[COMMON_CONSTANTS.HEADERS.HR]);
-        responseMsg.resetSession = true;
-        ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+    handleSecureAccessForNormalEmp(action) {
+        switch(action) {
+            case 'HR_CALL': 
+                this.handleCallForNormalEmp('HR');
+                break;
+            case 'MANAGER_CALL': 
+                this.handleCallForNormalEmp('MANAGER');
+                break;
+        }
+    }
+
+    async handleCallForNormalEmp(type) {
+        let emp = type == 'HR' ? this.headers[COMMON_CONSTANTS.HEADERS.HR] : this.headers[COMMON_CONSTANTS.HEADERS.MANAGER];
+        let empId = type == 'HR' ? emp.substring(0, 4) : emp.substring(emp.length - 4);
+        let responseMsg;
+        ZohoService.getEmpDataByParams('EmployeeID', empId, (err, data) => {
+            console.log('sdfsfsdfds----------->', err, data);
+            if(err) {
+                responseMsg = ResponseService.createTextResponse("Err in server, please try again..");
+            } else {
+                if(data && data.length > 0) {
+                    let emp = data[0];
+                    responseMsg = ResponseService.createTextResponse("Calling to " + emp['FirstName'] + " " + emp['LastName'] + " ( " + emp['Mobile'] + " )");
+                    responseMsg['isCall'] = true;
+                    responseMsg['phoneNumber'] = [emp['Mobile']];
+                } else {
+                    responseMsg = ResponseService.createTextResponse("Sorry, failed in retrieving the phone number, This error is with the end-database");
+                }
+            }
+            responseMsg.resetSession = true;
+            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+        });
     }
 
     canAccess(headers) {
