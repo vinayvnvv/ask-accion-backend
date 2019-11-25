@@ -1,5 +1,6 @@
 const env = require('./../../env.json');
 const axios = require('axios');
+const CommonService = require('./common-service');
 const COMMON_CONSTANTS = require('./../constants');
 const { FILTER_POEPLE_FIELDS } = COMMON_CONSTANTS;
 class ZohoService {
@@ -172,6 +173,7 @@ class ZohoService {
                     obj = this.getSecureFieldsFromPeople(obj, FILTER_POEPLE_FIELDS.INIT);
                     obj = obj[0];
                     obj['empId'] = key;
+                    obj['accessType'] = CommonService.getAccessType(obj['Role'], obj['Department']);
                     callback(null, obj);
                 } else {
                     callback(true);

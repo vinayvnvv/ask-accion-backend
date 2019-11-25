@@ -85,7 +85,7 @@ class PeopleIntent {
 
     canAccess(headers) {
         if(!headers) return false;
-        if(headers[COMMON_CONSTANTS.HEADERS.ROLE] === COMMON_CONSTANTS.ROLES.ADMIN.VALUE) return true;
+        if(CommonService.getAccessType(headers[COMMON_CONSTANTS.HEADERS.ROLE], headers[COMMON_CONSTANTS.HEADERS.DEPARTMENT]) === COMMON_CONSTANTS.ROLES.ADMIN.VALUE) return true;
         return false;
     }
 

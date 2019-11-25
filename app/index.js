@@ -22,6 +22,7 @@ class App {
     doInit(body, bucket, connectionType) {
         ZohoService.getEmpId(body.emailId, (obj) => {
             console.log('emp id:', obj.empId);
+            obj.accessType = CommonService.getAccessType(obj['Role'], obj['Department']);
             msgResponse.sendMsgToClient(obj, bucket, connectionType, initChannel);
         });
     }

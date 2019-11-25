@@ -40,5 +40,20 @@ class CommonService {
         }
         return obj;
     }
+
+    getAccessType(empRole, department) {
+        let role = 'normal';
+        if(department == 'Management' || 
+            department == 'Human Resource' || 
+            empRole == 'Admin' ||
+            empRole == 'Manager' ||
+            department == 'Leadership') role = 'Admin';
+        return role;
+    }
+    isAdminAccess(empRole, department) {
+        let role = this.getAccessType(empRole, department);
+        if(role === 'Admin') return true;
+        return false;
+    }
 }
 module.exports = new CommonService();

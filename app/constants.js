@@ -1,7 +1,7 @@
 module.exports = {
     ROLES: {
         ADMIN: {
-            SELECTOR: 'Role',
+            SELECTOR: 'accessType',
             VALUE: 'Admin'
         }
     },
@@ -18,6 +18,7 @@ module.exports = {
         DEPARTMENT: 'department',
         HR: 'hr',
         MANAGER: 'manager',
+        ACCESS_TYPE: 'accessType',
     },
     DATE_FORMATS: {
         ZOHO_DATE_FORMAT: 'DD-MMM-YYYY'
