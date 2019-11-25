@@ -20,7 +20,7 @@ module.exports = {
         HR: 'HR',
     },
     FIELDS_VALUES: {
-        PROJECT: ['Department'],
+        PROJECT: ['Project'],
         PHONE: ['Mobile'],
         CALL: ['Mobile'],
         MANAGER: ['Reporting_To'],
