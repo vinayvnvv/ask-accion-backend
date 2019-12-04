@@ -10,6 +10,7 @@ const SHORT_INTENTS = require('./intents/constants').SHORT_INTENTS;
 const INTENT_TYPES = require('./intents/constants').INTENT_TYPE;
 const ZohoService = require('./services/zoho-service');
 const DailogFlowService = require('./services/dailogflow.service');
+const StaticIntent = require('./intents/static');
 class App {
     
     doConnect(bucket, connectionType) {
@@ -54,11 +55,12 @@ class App {
 
     handleStaticIntent(data, intent, intentType) {
         console.log('static intent handle', intent, intentType);
-        const text = data.fulfillmentText;
-        var msg = msgResponse.createTextResponse(text, data.fulfillmentMessages);
-        msg.intent = intent;
-        msg = CommonService.appendAutoSuggestion(msg);
-        msgResponse.sendMsgToClient(msg, this.bucket, this.connectionType)
+        // const text = data.fulfillmentText;
+        // var msg = msgResponse.createTextResponse(text, data.fulfillmentMessages);
+        // msg.intent = intent;
+        // msg = CommonService.appendAutoSuggestion(msg);
+        // msgResponse.sendMsgToClient(msg, this.bucket, this.connectionType)
+        StaticIntent.handle(intent, data, this.bucket, this.connectionType, this.empId, this.emailId, this.headers)
     }
     handleDynamicIntent(data, intent, intentType) {
         console.log('dynamic intent handle', intent, intentType);
