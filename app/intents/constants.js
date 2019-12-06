@@ -24,6 +24,7 @@ module.exports = {
         START_DATE: 'startDate',
         RANGE_GAP: 'range_gap',
         ME_ENTITY: 'me-entity',
+        OFFICE_LOCATION: 'office_locations',
     },
     PARAMS_VALUES: {
         RANGE_GAP: {
