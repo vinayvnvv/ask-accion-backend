@@ -67,7 +67,7 @@ class StaticIntent {
                 const params = DailogFlowService.parseDailogFlowParams(this.data.parameters);
                 console.log('contatc num->', parsedCustomPayload, params, parsedCustomPayload[params[PARAMS_NAMES.OFFICE_LOCATION]]);
                 msg = ResponseService.createTextResponse(text + ' = ' + parsedCustomPayload[params[PARAMS_NAMES.OFFICE_LOCATION]]);
-                msg = CommonService.addLinkAction(msg, LINK_ACTIONS.URL, parsedCustomPayload[params[PARAMS_NAMES.OFFICE_LOCATION]])
+                // msg = CommonService.addLinkAction(msg, LINK_ACTIONS.URL, parsedCustomPayload[params[PARAMS_NAMES.OFFICE_LOCATION]])
             } else {
                 msg = ResponseService.createTextResponse('Sorry, Problem in getting the contact numbers. Try after sometime.');
             }
