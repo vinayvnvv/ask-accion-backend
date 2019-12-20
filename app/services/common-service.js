@@ -55,5 +55,15 @@ class CommonService {
         if(role === 'Admin') return true;
         return false;
     }
+
+    addLinkAction(msg, linkType, linkUrl) {
+        return {
+            ...msg,
+            action: {
+                type: 'link',
+                linkType, linkUrl
+            }
+        }
+    }
 }
 module.exports = new CommonService();

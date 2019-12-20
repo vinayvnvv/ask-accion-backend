@@ -22,5 +22,8 @@ module.exports = {
     },
     DATE_FORMATS: {
         ZOHO_DATE_FORMAT: 'DD-MMM-YYYY'
+    },
+    LINK_ACTIONS: {
+        URL: 'url'
     }
 }
