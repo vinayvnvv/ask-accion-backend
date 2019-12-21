@@ -34,7 +34,8 @@ class MessageResponse {
     }
 
     parsePhoneNumber(text) {
-        var match = text.match(/\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*/g);
+        // var match = text.match(/\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*/g);
+        var match = text.match(/(?:(?:\+|0{0,2})91(\s*[\ -]\s*)?|[0]?)?[789]\d{9}|(\d[ -]?){10}\d/g);
         if(match) {
             const res = [];
             match.forEach(m => {
