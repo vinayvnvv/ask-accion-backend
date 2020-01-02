@@ -2,14 +2,12 @@ const FILEDS = require('./constants').FIELDS;
 const FIELDS_VALUES = require('./constants').FIELDS_VALUES;
 const ACTIONS = require('./constants').ACTIONS;
 const PARAMS_NAMES = require('./../constants').PARAMS_NAMES;
-const ENV = require('./../../../env.json');
 const COMMON_CONSTANTS = require('./../../constants');
 const { FILTER_POEPLE_FIELDS } = COMMON_CONSTANTS;
 const ResponseService = require('./../../services/message-response');
 const ZohoService = require('./../../services/zoho-service');
 const CommonService = require('./../../services/common-service');
 const NLPService = require('./../../services/nlp-service');
-const AICService = require('./../../services/aic.service');
 const DailogFlow = require('./../../services/dailogflow.service');
 class PeopleIntent {
     doAction(action, data, bucket, connectionType, empId, headers) {
@@ -119,14 +117,21 @@ class PeopleIntent {
                 var value = "";
                 const fields = FIELDS_VALUES[FILTER];
                 console.log('other', fields);
-                if(fields && fields.length > 0) {
-                    fields.forEach((key) => {
-                        console.log('key', key, 'peopleData[key]', peopleData[key]);
-                        if(peopleData[key]) value = peopleData[key];
-                    })
+                let msg = '';
+                if(FILTER === FILEDS.FROFILE) {
+                    msg = 'Here is the profile of ' +  peopleData['FirstName'] + ' ' + peopleData['LastName'];
+                } else {
+                    if(fields && fields.length > 0) {
+                        fields.forEach((key) => {
+                            console.log('key', key, 'peopleData[key]', peopleData[key]);
+                            if(peopleData[key]) value = peopleData[key];
+                        })
+                    }
+                    msg = FILTER + " : " + value;
                 }
-                const msg = FILTER + " : " + value;
                 const responseMsg = ResponseService.createTextResponse(msg);
+                responseMsg.type = 'profileCard';
+                responseMsg.profileCard = ZohoService.getSecureFieldsFromPeople([...[], peopleData], FILTER_POEPLE_FIELDS.INIT);
                 // console.log('CONTEXTS', this.data.result.contexts);
                 if(FILTER === FILEDS.CALL) {
                     responseMsg.isCall = true;

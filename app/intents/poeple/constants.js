@@ -18,6 +18,7 @@ module.exports = {
         EXPERIENCE: 'EXPERIENCE',
         DATE_OF_JOINING: 'DATE_OF_JOINING',
         HR: 'HR',
+        FROFILE: 'PROFILE',
     },
     FIELDS_VALUES: {
         PROJECT: ['Project'],
