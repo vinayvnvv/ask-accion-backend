@@ -131,7 +131,7 @@ class PeopleIntent {
                 }
                 const responseMsg = ResponseService.createTextResponse(msg);
                 responseMsg.type = 'profileCard';
-                responseMsg.profileCard = ZohoService.getSecureFieldsFromPeople([...[], peopleData], FILTER_POEPLE_FIELDS.INIT);
+                responseMsg.profileCard = (ZohoService.getSecureFieldsFromPeople([...[], peopleData], FILTER_POEPLE_FIELDS.INIT))[0];
                 // console.log('CONTEXTS', this.data.result.contexts);
                 if(FILTER === FILEDS.CALL) {
                     responseMsg.isCall = true;
