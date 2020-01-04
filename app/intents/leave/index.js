@@ -175,7 +175,7 @@ class LeaveIntent {
                 const listView = [];
                 holidays.forEach(day=>{
                     listView.push(CommonService.createListViewCard(
-                        'Name: ' + day['Name'],
+                        day['Name'],
                         'Date: ' + day['fromDate'],
                         'Locations: ' + day['LocationName']
                     ));
