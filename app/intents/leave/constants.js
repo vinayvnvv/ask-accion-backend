@@ -4,6 +4,7 @@ module.exports = {
         WORKING_FROM_HOME: 'working_from_home_apply',
         LEAVE_BALANCE_INFO: 'leaves-balance_info',
         APPLIED_LEAVES_INFO: 'applied_leaves_info',
+        GET_HOLIDAYS: 'get_holidays',
     },
     LEAVE_TYPES_ID: {
         SICK: "393858000000123013",

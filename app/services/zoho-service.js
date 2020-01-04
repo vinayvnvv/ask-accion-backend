@@ -226,5 +226,26 @@ class ZohoService {
         
     }
 
+    getHolidaysList(userId) {
+        const urlParams = "?authtoken=" + env.zoho.authToken + "&userId=" + userId;
+        const url = env.zoho.host + 'leave/getHolidays' + urlParams;
+        console.log(url);
+        const httpConfig = {
+            url,
+            method: 'get'
+        };
+        return new Promise((resolve, reject) => {
+            axios(httpConfig).then((res) => {
+                if(res.data && res.data.response && res.data.response.result) {
+                    resolve(res.data.response.result);
+                } else {
+                    reject('Error in Server! Please Try Again');
+                }
+            }).catch(err => {
+                reject(err);
+            }) ;
+        });
+    }
+
 }
 module.exports = new ZohoService();     

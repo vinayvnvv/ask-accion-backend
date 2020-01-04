@@ -70,7 +70,7 @@ class App {
                 AttendenceIntent.doAction(intentDetails.action, data, this.bucket, this.connectionType, this.empId, this.emailId, this.headers);
                 break;
             case SHORT_INTENTS.LEAVE: 
-                LeaveIntent.doAction(intentDetails.action, data, this.bucket, this.connectionType, this.empId, this.headers);
+                LeaveIntent.doAction(intentDetails.action, data, this.bucket, this.connectionType, this.empId, this.emailId, this.headers);
                 break;
             case SHORT_INTENTS.WORKING_FROM_HOME: 
                 LeaveIntent.doAction(intentDetails.action, data, this.bucket, this.connectionType, this.empId, this.headers);

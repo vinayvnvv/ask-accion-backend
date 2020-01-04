@@ -2,7 +2,7 @@ const ACTION = require('./constants').ACTIONS;
 const PARAMS_NAMES = require('./../constants').PARAMS_NAMES;
 const LEAVE_TYPES = require('./constants').LEAVE_TYPES_ID;
 const COMMON_CONSTANTS = require('./../../constants');
-const { HEADERS } = COMMON_CONSTANTS;
+const { HEADERS, DATE_FORMATS } = COMMON_CONSTANTS;
 const ResponseService = require('./../../services/message-response');
 const DateService = require('./../../services/date.service');
 const ZohoServive = require('./../../services/zoho-service');
@@ -11,11 +11,12 @@ const CommonService = require('./../../services/common-service');
 const moment = require('moment');
 
 class LeaveIntent {
-    doAction(action, data, bucket, connectionType, empId, headers) {
+    doAction(action, data, bucket, connectionType, empId, emailId, headers) {
         this.bucket = bucket;
         this.connectionType = connectionType;
         this.data = data;
         this.empId = empId;
+        this.emailId = emailId;
         this.headers = headers;
         console.log('inside LeaveIntent with action: ', action);
         switch(action) {
@@ -30,6 +31,9 @@ class LeaveIntent {
                 break;
             case ACTION.APPLIED_LEAVES_INFO:
                 this.getAppliedLeavesInfo();
+                break;
+            case ACTION.GET_HOLIDAYS:
+                this.getHolidays();
                 break;
         }
     }
@@ -150,6 +154,48 @@ class LeaveIntent {
             const msg = ResponseService.createTextResponse("Sorry, Error in server while quering... Please try again..");
             ResponseService.sendMsgToClient(msg, this.bucket, this.connectionType);
         }
+    }
+
+
+    async getHolidays() {
+        console.log('getHolidays', this.headers, this.data.parameters);
+        const params = DailogFlowService.parseDailogFlowParams(this.data.parameters);
+        console.log('params', params);
+        let msg;
+        const date_period = params[PARAMS_NAMES.DATE_OR_PERIOD];
+        const _date = params[PARAMS_NAMES.DATE_OR_PERIOD][PARAMS_NAMES.DATE_PERIOD];
+        try {
+            let holidays = await ZohoServive.getHolidaysList(this.emailId);
+            if(date_period) {
+                holidays = holidays.filter(i=>moment(i.fromDate).isBetween(_date[PARAMS_NAMES.START_DATE], _date[PARAMS_NAMES.END_DATE]));
+                msg = ResponseService.createTextResponse('Here is the holidays from ' + 
+                        moment(_date[PARAMS_NAMES.START_DATE]).format(DATE_FORMATS.ZOHO_DATE_FORMAT) + ' to ' + 
+                        moment(_date[PARAMS_NAMES.END_DATE]).format(DATE_FORMATS.ZOHO_DATE_FORMAT)
+                      );
+                const listView = [];
+                holidays.forEach(day=>{
+                    listView.push(CommonService.createListViewCard(
+                        'Name: ' + day['Name'],
+                        'Date: ' + day['fromDate'],
+                        'Locations: ' + day['LocationName']
+                    ));
+                });
+                msg.type = 'listView';
+                msg['listView'] = listView;
+            } else {
+                msg = ResponseService.createTextResponse('Here is the holidays list of this year.');
+            }
+            console.log(holidays);
+            if(holidays.length === 0) {
+                msg = ResponseService.createTextResponse('There is no holidays from ' + 
+                        moment(_date[PARAMS_NAMES.START_DATE]).format(DATE_FORMATS.ZOHO_DATE_FORMAT) + ' to ' + 
+                        moment(_date[PARAMS_NAMES.END_DATE]).format(DATE_FORMATS.ZOHO_DATE_FORMAT)
+                    );
+            }
+        } catch(err) {
+            msg = ResponseService.createTextResponse(err);
+        }
+        ResponseService.sendMsgToClient(msg, this.bucket, this.connectionType);
     }
 }
 module.exports = new LeaveIntent();
