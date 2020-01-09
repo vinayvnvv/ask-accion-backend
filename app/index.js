@@ -14,7 +14,7 @@ const StaticIntent = require('./intents/static');
 class App {
     
     doConnect(bucket, connectionType) {
-        var msg = msgResponse.createTextResponse('Welcome to Accion Assistance! &#128522');
+        var msg = msgResponse.createTextResponse('Welcome to Accion Assistance!');
         msg.intent = 'init';
         msg = CommonService.appendAutoSuggestion(msg);
         msgResponse.sendMsgToClient(msg, bucket, connectionType);
