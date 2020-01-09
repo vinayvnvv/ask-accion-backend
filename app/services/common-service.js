@@ -2,7 +2,7 @@ const intents = require('./../../intents.json');
 class CommonService {
     appendAutoSuggestion(msg) {
         if(msg.intent === intents.welcome || msg.intent === 'init') {
-            msg.suggestions = ["What can you do?", 'Apply leave', "Call to Ramesh", "Skills with flutter", 'find my payslip', "My Applied leaves", "My Attendance", "Manager of vinay", 'Working from home today', "when i will recieve salary?", 'what is the dress code?', "what if one rude to me?", "where is e-card?"];
+            msg.suggestions = ["What can you do?", 'Apply leave', "Show Holidays", "Skills with flutter", 'find my payslip', "My Applied leaves", "My Attendance", "Manager of vinay", 'Working from home today', "when i will recieve salary?", 'what is the dress code?', "what if one rude to me?", "where is e-card?"];
         }
         return msg;
     }
