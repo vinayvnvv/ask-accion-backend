@@ -60,7 +60,7 @@ class LeaveIntent {
             console.log("leaveType", leaveType, LEAVE_TYPES.WORK_FROM_HOME, fromDate)
             const response = await ZohoServive.applyLeave(this.empId, fromDate, toDate, leaveType);
             console.log("response", response);
-            msg = ResponseService.createTextResponse(response + '[[sug]]My Last Applied 1 Leave, My Applied Leaves[[/sug]]');
+            msg = ResponseService.createTextResponse(response + '[[sug]]My Last 1 Applied Leave, My Applied Leaves[[/sug]]');
         } else {
             msg = ResponseService.createTextResponse(fullfillmentMsg);
             console.log('not full filled');
