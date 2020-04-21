@@ -15,8 +15,11 @@ class NLPClass {
         });
         return words;
     }
-    extarctWordsFromSpeech(str) {
-        return wordpos.getPOS(str);
+    async extarctWordsFromSpeech(str) {
+        console.log('extarctWordsFromSpeech', res);
+        const r = await wordpos.getPOS(str);
+        console.log('rult slp->', r);
+        return r;
     }
     getValidNameFromArray(arr) {
         for(var i=0;i<arr.length;i++) {

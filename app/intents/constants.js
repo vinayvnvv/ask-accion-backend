@@ -17,6 +17,7 @@ module.exports = {
         USER_INFO_FILTER: 'user_info_filter',
         EMAIL: 'email',
         GIVEN_NAME: 'given-name',
+        LAST_NAME: 'last-name',
         ANY: 'any',
         SKILLS: 'skills',
         NUMBER: 'number',

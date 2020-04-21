@@ -88,12 +88,12 @@ class PeopleIntent {
     }
 
     async getUserInfo() {
-        console.log('Get User Info Action--->', this.data, JSON.stringify(this.data.parameters));
+        console.log('Get User Info Action--->', JSON.stringify(this.data), JSON.stringify(this.data.parameters));
         const params = DailogFlow.parseStructParams(this.data.parameters.fields);
         console.log('params', params);
         // const actionIncomplete = this.data.result.actionIncomplete;
         // const fullfillmentMsg = this.data.result.fulfillment.speech;
-        var GIVEN_NAME = params[PARAMS_NAMES.GIVEN_NAME] || params[PARAMS_NAMES.ANY];
+        var GIVEN_NAME = params[PARAMS_NAMES.GIVEN_NAME] || params[PARAMS_NAMES.LAST_NAME] || params[PARAMS_NAMES.ANY];
         const EMAIL = params[PARAMS_NAMES.EMAIL];
         var FILTER = params[PARAMS_NAMES.USER_INFO_FILTER];
         var NAME_FROM_NLP;
@@ -103,6 +103,7 @@ class PeopleIntent {
         console.log('NAME_FROM_NLP', NAME_FROM_NLP);
         if(NAME_FROM_NLP) {
             GIVEN_NAME = NLPService.getValidNameFromArray(NAME_FROM_NLP.rest);
+            if(Array.isArray(GIVEN_NAME)) GIVEN_NAME = GIVEN_NAME[0];
             console.log('GIVEN_NAME From the nlp servivce', GIVEN_NAME);
         }
         if(FILTER instanceof Array) {
@@ -127,7 +128,12 @@ class PeopleIntent {
                             if(peopleData[key]) value = peopleData[key];
                         })
                     }
-                    msg = FILTER + " : " + value;
+                    if(FILTER && value) {
+                        msg = FILTER + " : " + value;
+                    } else {
+                        msg = 'Here is the profile of ' +  peopleData['FirstName'] + ' ' + peopleData['LastName'];
+                    }
+                    
                 }
                 const responseMsg = ResponseService.createTextResponse(msg);
                 responseMsg.type = 'profileCard';
@@ -143,7 +149,7 @@ class PeopleIntent {
             responseMsg.resetSession = true;
             ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
         } else {
-            ZohoService.getEmpDetails(FIELDS_VALUES.FIRST_NAME[0], GIVEN_NAME, (data) => {
+            ZohoService.getEmpDetails(FIELDS_VALUES.NAME_ALL, GIVEN_NAME, (data) => {
                 if (data) {
                     if (data.response.errors) {
                         console.log('errr', data.response.errors);

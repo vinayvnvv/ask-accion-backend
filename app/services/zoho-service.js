@@ -91,7 +91,71 @@ class ZohoService {
         });
     }
 
+
+    async getEmpDetailsForMultiFileds(searchField, searchText, callback) {
+        const results = [];
+        const appendResults = (res) => {
+            if(res.data.response && res.data.response.result && res.data.response.result && res.data.response.result.length > 0) {
+                res.data.response.result.forEach((ppl) => {
+                       Object.keys(ppl).forEach((key) => {
+                           console.log('key', key, JSON.parse(JSON.stringify(results)));
+                            const exists = results.filter(itm => {
+                                console.log('itm', itm);
+                                return Object.keys(itm).map(k => k===key)[0];  
+                            })[0] ;
+                            if(!exists) results.push(ppl);
+                       });
+                });
+            }
+        };
+        for(let i=0;i<searchField.length;i++) {
+            const searchParams = {
+                searchField: searchField[i],
+                searchOperator: 'Contains', 
+                searchText
+            };
+            const urlParams = "?authtoken=" + env.zoho.authToken + "&searchParams=" + JSON.stringify(searchParams);;
+            const url = env.zoho.host + 'forms/employee/getRecords' + urlParams;
+            const httpConfig = {
+                url,
+                method: 'get'
+            };
+            console.log(url);
+            const resData = await axios(httpConfig);
+            console.log(resData.data, resData.status);
+            if(resData.status === 200) {
+                appendResults(resData);
+            } else {
+                callback(null);
+            }
+        }
+
+        if(results.length === 0) {
+            const obj = {
+                response: {
+                    errors: {
+                        message: 'No Records found with ' + searchText,
+                    }
+                }
+            }
+            callback(obj);
+            return;
+        } else {
+            const obj = {
+                response: {
+                    result: results,
+                }
+            }
+            callback(obj);
+            return;
+        }
+    }
+
     getEmpDetails(searchField, searchText, callback) {
+        if(Array.isArray(searchField)) {
+            this.getEmpDetailsForMultiFileds(searchField, searchText, callback);
+            return;
+        }
         const searchParams = {
             searchField,
             searchOperator: 'Contains', 

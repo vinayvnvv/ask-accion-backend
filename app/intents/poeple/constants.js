@@ -35,5 +35,6 @@ module.exports = {
         EXPERIENCE: ['Experience'],
         DATE_OF_JOINING: ['Dateofjoining'],
         FIRST_NAME: ['FirstName'],
+        NAME_ALL: ['FirstName', 'LastName']
     }
 }
