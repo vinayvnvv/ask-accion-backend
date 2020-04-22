@@ -88,89 +88,97 @@ class PeopleIntent {
     }
 
     async getUserInfo() {
-        console.log('Get User Info Action--->', JSON.stringify(this.data), JSON.stringify(this.data.parameters));
-        const params = DailogFlow.parseStructParams(this.data.parameters.fields);
-        console.log('params', params);
-        // const actionIncomplete = this.data.result.actionIncomplete;
-        // const fullfillmentMsg = this.data.result.fulfillment.speech;
-        var GIVEN_NAME = params[PARAMS_NAMES.GIVEN_NAME] || params[PARAMS_NAMES.LAST_NAME] || params[PARAMS_NAMES.ANY];
-        const EMAIL = params[PARAMS_NAMES.EMAIL];
-        var FILTER = params[PARAMS_NAMES.USER_INFO_FILTER];
-        var NAME_FROM_NLP;
-        if(!GIVEN_NAME && !params[PARAMS_NAMES.EMAIL]) { //check next level nlp if dailogflow nlp will not able recognize name
-            NAME_FROM_NLP = await NLPService.extarctWordsFromSpeech(this.data.result.resolvedQuery);
-        }
-        console.log('NAME_FROM_NLP', NAME_FROM_NLP);
-        if(NAME_FROM_NLP) {
-            GIVEN_NAME = NLPService.getValidNameFromArray(NAME_FROM_NLP.rest);
-            if(Array.isArray(GIVEN_NAME)) GIVEN_NAME = GIVEN_NAME[0];
-            console.log('GIVEN_NAME From the nlp servivce', GIVEN_NAME);
-        }
-        if(FILTER instanceof Array) {
-            FILTER = FILTER[0];
-        }
-        if (params[PARAMS_NAMES.EMAIL]) {
-            ZohoService.getEmpDetails(FIELDS_VALUES.EMAIL[0], EMAIL, (data) => {
-                const peopleData = CommonService.createPeopleData(data.response.result)[0];
-                console.log("filter", FILTER);
-                console.log("peopleData", peopleData);
-                console.log('filed name', FIELDS_VALUES[PARAMS_NAMES.USER_INFO_FILTER]);
-                var value = "";
-                const fields = FIELDS_VALUES[FILTER];
-                console.log('other', fields);
-                let msg = '';
-                if(FILTER === FILEDS.FROFILE) {
-                    msg = 'Here is the profile of ' +  peopleData['FirstName'] + ' ' + peopleData['LastName'];
-                } else {
-                    if(fields && fields.length > 0) {
-                        fields.forEach((key) => {
-                            console.log('key', key, 'peopleData[key]', peopleData[key]);
-                            if(peopleData[key]) value = peopleData[key];
-                        })
-                    }
-                    if(FILTER && value) {
-                        msg = FILTER + " : " + value;
-                    } else {
+        try {
+            console.log('Get User Info Action--->', JSON.stringify(this.data.result));
+            const params = DailogFlow.parseStructParams(this.data.parameters.fields);
+            console.log('params', params);
+            // const actionIncomplete = this.data.result.actionIncomplete;
+            // const fullfillmentMsg = this.data.result.fulfillment.speech;
+            var GIVEN_NAME = params[PARAMS_NAMES.GIVEN_NAME] || params[PARAMS_NAMES.LAST_NAME] || params[PARAMS_NAMES.ANY];
+            const EMAIL = params[PARAMS_NAMES.EMAIL];
+            var FILTER = params[PARAMS_NAMES.USER_INFO_FILTER];
+            var NAME_FROM_NLP;
+            if(!GIVEN_NAME && !params[PARAMS_NAMES.EMAIL]) { //check next level nlp if dailogflow nlp will not able recognize name
+                NAME_FROM_NLP = await NLPService.extarctWordsFromSpeech(this.data.queryText);
+            }
+            console.log('NAME_FROM_NLP', NAME_FROM_NLP);
+            if(NAME_FROM_NLP) {
+                GIVEN_NAME = NLPService.getValidNameFromArray(NAME_FROM_NLP.rest);
+                if(Array.isArray(GIVEN_NAME)) GIVEN_NAME = GIVEN_NAME[0];
+                console.log('GIVEN_NAME From the nlp servivce', GIVEN_NAME);
+            }
+            if(FILTER instanceof Array) {
+                FILTER = FILTER[0];
+            }
+            if (params[PARAMS_NAMES.EMAIL]) {
+                ZohoService.getEmpDetails(FIELDS_VALUES.EMAIL[0], EMAIL, (data) => {
+                    const peopleData = CommonService.createPeopleData(data.response.result)[0];
+                    console.log("filter", FILTER);
+                    console.log("peopleData", peopleData);
+                    console.log('filed name', FIELDS_VALUES[PARAMS_NAMES.USER_INFO_FILTER]);
+                    var value = "";
+                    const fields = FIELDS_VALUES[FILTER];
+                    console.log('other', fields);
+                    let msg = '';
+                    if(FILTER === FILEDS.FROFILE) {
                         msg = 'Here is the profile of ' +  peopleData['FirstName'] + ' ' + peopleData['LastName'];
-                    }
-                    
-                }
-                const responseMsg = ResponseService.createTextResponse(msg);
-                responseMsg.type = 'profileCard';
-                responseMsg.profileCard = (ZohoService.getSecureFieldsFromPeople([...[], peopleData], FILTER_POEPLE_FIELDS.INIT))[0];
-                // console.log('CONTEXTS', this.data.result.contexts);
-                if(FILTER === FILEDS.CALL) {
-                    responseMsg.isCall = true;
-                }
-                ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
-            });
-        } else if (!GIVEN_NAME && !params[PARAMS_NAMES.EMAIL]) {
-            const responseMsg = ResponseService.createTextResponse('specify atlease name or email id');
-            responseMsg.resetSession = true;
-            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
-        } else {
-            ZohoService.getEmpDetails(FIELDS_VALUES.NAME_ALL, GIVEN_NAME, (data) => {
-                if (data) {
-                    if (data.response.errors) {
-                        console.log('errr', data.response.errors);
-                        const responseMsg = ResponseService.createTextResponse(data.response.errors.message);
-                        responseMsg.resetSession = true;
-                        ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
                     } else {
-                        const peopleListCardsData = CommonService.createPeopleData(data.response.result);
-                        var responseObj = ResponseService.createTextResponse('Which ' + GIVEN_NAME + ' you are looking for?');
-                        responseObj.peopleList = ZohoService.getSecureFieldsFromPeople(peopleListCardsData, FILTER_POEPLE_FIELDS.PEOPLE_LIST);
-                        responseObj.type = 'people-list';
-                        ResponseService.sendMsgToClient(responseObj, this.bucket, this.connectionType);
+                        if(fields && fields.length > 0) {
+                            fields.forEach((key) => {
+                                console.log('key', key, 'peopleData[key]', peopleData[key]);
+                                if(peopleData[key]) value = peopleData[key];
+                            })
+                        }
+                        if(FILTER && value) {
+                            msg = FILTER + " : " + value;
+                        } else {
+                            msg = 'Here is the profile of ' +  peopleData['FirstName'] + ' ' + peopleData['LastName'];
+                        }
+                        
                     }
-                } else {
-                    console.log('err in server');
-                    const responseMsg = ResponseService.createTextResponse('Error in server, Please Try Again!!!');
+                    const responseMsg = ResponseService.createTextResponse(msg);
+                    responseMsg.type = 'profileCard';
+                    responseMsg.profileCard = (ZohoService.getSecureFieldsFromPeople([...[], peopleData], FILTER_POEPLE_FIELDS.INIT))[0];
+                    // console.log('CONTEXTS', this.data.result.contexts);
+                    if(FILTER === FILEDS.CALL) {
+                        responseMsg.isCall = true;
+                    }
                     ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
-                }
+                });
+            } else if (!GIVEN_NAME && !params[PARAMS_NAMES.EMAIL]) {
+                const responseMsg = ResponseService.createTextResponse('specify atlease name or email id');
+                responseMsg.resetSession = true;
+                ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+            } else {
+                ZohoService.getEmpDetails(FIELDS_VALUES.NAME_ALL, GIVEN_NAME, (data) => {
+                    if (data) {
+                        if (data.response.errors) {
+                            console.log('errr', data.response.errors);
+                            const responseMsg = ResponseService.createTextResponse(data.response.errors.message);
+                            responseMsg.resetSession = true;
+                            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+                        } else {
+                            const peopleListCardsData = CommonService.createPeopleData(data.response.result);
+                            var responseObj = ResponseService.createTextResponse('Which ' + GIVEN_NAME + ' you are looking for?');
+                            responseObj.peopleList = ZohoService.getSecureFieldsFromPeople(peopleListCardsData, FILTER_POEPLE_FIELDS.PEOPLE_LIST);
+                            responseObj.type = 'people-list';
+                            ResponseService.sendMsgToClient(responseObj, this.bucket, this.connectionType);
+                        }
+                    } else {
+                        console.log('err in server');
+                        const responseMsg = ResponseService.createTextResponse('Error in server, Please Try Again!!!');
+                        ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
+                    }
 
-            })
+                })
+            }
+        } catch(err) {
+            console.log('err', err);
+            const msg = 'Oops!!!, There something err in the server while retrieving, we will consider this query by sending to your Business HR.'
+            const responseMsg = ResponseService.createTextResponse(msg);
+            ResponseService.sendMsgToClient(responseMsg, this.bucket, this.connectionType);
         }
+        
     }
 
     getPeopleBySkill() {

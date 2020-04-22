@@ -16,7 +16,7 @@ class NLPClass {
         return words;
     }
     async extarctWordsFromSpeech(str) {
-        console.log('extarctWordsFromSpeech', res);
+        console.log('extarctWordsFromSpeech', str);
         const r = await wordpos.getPOS(str);
         console.log('rult slp->', r);
         return r;
